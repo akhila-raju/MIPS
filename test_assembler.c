@@ -111,9 +111,10 @@ void test_table_1() {
     retval = get_addr_for_symbol(tbl, "q45");
     CU_ASSERT_EQUAL(retval, 16); 
     retval = get_addr_for_symbol(tbl, "ef");
-    CU_ASSERT_EQUAL(retval, -1);
+    CU_ASSERT_EQUAL(retval, -1); 
     
     free_table(tbl);
+    
 
     char* arr[] = { "Error: name 'q45' already exists in table.",
                     "Error: address is not a multiple of 4." };
@@ -122,9 +123,9 @@ void test_table_1() {
     SymbolTable* tbl2 = create_table(SYMTBL_NON_UNIQUE);
     CU_ASSERT_PTR_NOT_NULL(tbl2);
 
-    retval = add_to_table(tbl, "q45", 16);
+    retval = add_to_table(tbl2, "q45", 16);
     CU_ASSERT_EQUAL(retval, 0);
-    retval = add_to_table(tbl, "q45", 24); 
+    retval = add_to_table(tbl2, "q45", 24); 
     CU_ASSERT_EQUAL(retval, 0);
 
     free_table(tbl2);

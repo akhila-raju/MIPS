@@ -18,9 +18,9 @@ typedef struct {
 } Symbol;
 
 typedef struct {
-    Symbol* tbl;
-    uint32_t len;
-    uint32_t cap;
+    Symbol* tbl; //an array of symbols
+    uint32_t cap; //for dynamic arrays
+    uint32_t len; //the length of the struct
     int mode;
 } SymbolTable;
 
