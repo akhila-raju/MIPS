@@ -63,6 +63,7 @@ void free_table(SymbolTable *table) {
     }
     table->len = 0;
     free(table->tbl);
+    free(table);
 }
 
 /* Adds a new symbol and its address to the SymbolTable pointed to by TABLE. 
