@@ -40,12 +40,96 @@
  */
 unsigned write_pass_one(FILE* output, const char* name, char** args, int num_args) {
     if (strcmp(name, "li") == 0) {
-        /* YOUR CODE HERE */
-        return 0;
+        //ex: li $8, 0x3BF20
+        int instructions_written = 0; 
+        long int imm;
+
+        int i = translate_num(&imm, args[1], -2147483648, 4294967295);
+        if (num_args == 2) {
+          if (i == -1) {
+            //immediate is too large 
+            return 0; 
+          } else if (-32768 <= imm && imm <= 65535) {
+            //addiu case
+            char charImm[20];
+            snprintf(charImm, 16, "%lu", imm);
+            char instructions[50]; //addiu $t3 $0 5
+            strcpy(instructions, "addiu ");
+            strcat(instructions, args[0]);
+            strcat(instructions, " $0 ");
+            strcat(instructions, charImm);
+            strcat(instructions, "\n");
+            instructions_written += 1;
+            fprintf(output, "%s\n", instructions);
+            //printf("\n\n%s\n", instructions); //delete me (for testing)
+          } else {
+            //lui ori
+            long int imm2 = imm;
+            char luiInst[30];
+            char oriInst[30];
+            char luiImm[30];
+            char oriImm[30];
+
+            strcpy(luiInst, "lui ");
+            strcat(luiInst, args[0]);
+            strcat(luiInst, " ");
+            //get upper 16 bits
+            imm = imm >> 16;
+            imm = imm & 0x0000ffff;
+            snprintf(luiImm, 16, "%lu", imm);
+            strcat(luiInst, luiImm);
+
+            strcpy(oriInst, "ori ");
+            strcat(oriInst, args[0]);
+            strcat(oriInst, " ");
+            strcat(oriInst, args[0]);
+            strcat(oriInst, " ");
+
+            //get the lower 16 bits
+            imm2 = imm2 & 0xffff;
+            snprintf(oriImm, 16, "%lu", imm2);
+            strcat(oriInst, oriImm);
+            
+            instructions_written += 2;
+            fprintf(output, "%s\n", luiInst);
+            fprintf(output, "%s\n", oriInst);
+            //printf("%s\n", luiInst); //delete me (for testing)
+            //printf("%s\n", oriInst); //delete me (for testing)
+          }
+        }
+        return instructions_written;
     } else if (strcmp(name, "blt") == 0) {
-        /* YOUR CODE HERE */
-        return 0;
+        //ex: blt $8, $9, label
+        int instructions_written = 0;
+        if (num_args == 3) {
+          char sltInst[30];
+          char bneInst[30]; 
+
+          strcpy(sltInst, "slt ");
+          strcat(sltInst, "$at "); 
+          strcat(sltInst, args[0]);
+          strcat(sltInst, " ");
+          strcat(sltInst, args[1]);
+          strcat(sltInst, " ");
+
+          strcpy(bneInst, "bne ");
+          strcat(bneInst, "$at ");
+          strcat(bneInst, "$0 ");
+          strcat(bneInst, args[3]);
+
+          fprintf(output, "%s\n", sltInst);
+          fprintf(output, "%s\n", bneInst);
+
+          //printf("\n%s\n", sltInst); //delete me (for testing)
+          //printf("%s\n", bneInst); //delete me (for testing)
+          
+          instructions_written += 2;
+        }
+        return instructions_written;
     } else {
+        /*Writes the instruction as a string to OUTPUT. NAME is the name of the 
+         instruction, and its arguments are in ARGS. NUM_ARGS is the length of
+         the array. */
         write_inst_string(output, name, args, num_args);
         return 1;
     }

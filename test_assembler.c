@@ -154,11 +154,95 @@ void test_table_2() {
 }
 
 /****************************************
- *  Add your test cases here
+ * Test for step 4
  ****************************************/
 
+void test_li_expansion() {
+    int retval;
+
+    char li[]  = "li";
+
+    //error case: wrong num of args
+    FILE* asdf = fopen("asdf.txt", "w");
+    CU_ASSERT_PTR_NOT_NULL(asdf);
+    char *badArray[1][20];
+    char badArg[4] = "$s0";
+    badArray[0][0] = badArg;
+    retval = write_pass_one(asdf, li, badArray, 1);
+    fclose(asdf);
+    CU_ASSERT_EQUAL(retval, 0);
+
+    //correct case: addiu
+    FILE* asdf1 = fopen("asdf1.txt", "w");
+    CU_ASSERT_PTR_NOT_NULL(asdf1);
+    char *array[2][20];
+    char arg1[4] = "$t0";
+    char arg2[6] = "65535";
+    array[0][0] = arg1;
+    array[0][1] = arg2;
+    retval = write_pass_one(asdf1, li, array, 2);
+    fclose(asdf1);
+    CU_ASSERT_EQUAL(retval, 1);
+
+    //correct case: lui ori
+    FILE* asdf2 = fopen("asdf2.txt", "w");
+    CU_ASSERT_PTR_NOT_NULL(asdf2);
+    char *array2[2][30];
+    char arg3[4] = "$t0";
+    char arg4[20] = "0x3BF20";
+    array2[0][0] = arg3;
+    array2[0][1] = arg4;
+    retval = write_pass_one(asdf2, li, array2, 2);
+    fclose(asdf2);
+    CU_ASSERT_EQUAL(retval, 2);
+
+    //correct case: deadbeef
+    FILE* asdf3 = fopen("asdf3.txt", "w");
+    CU_ASSERT_PTR_NOT_NULL(asdf3);
+    char *array3[2][30];
+    char arg5[4] = "$t0";
+    char arg6[20] = "0xDEADBEEF";
+    array3[0][0] = arg5;
+    array3[0][1] = arg6;
+    retval = write_pass_one(asdf3, li, array3, 2);
+    fclose(asdf3);
+    CU_ASSERT_EQUAL(retval, 2); 
+}
+
+void test_blt_expansion() {
+  int retval;
+  char blt[] = "blt";
+
+  //incorrect case: not enough arguments
+  FILE* asdf = fopen("asdf.txt", "w");
+  CU_ASSERT_PTR_NOT_NULL(asdf);
+  char *array[3][20];
+  char arg1[4] = "$8";
+  char arg2[4] = "$9";
+  array[0][0] = arg1;
+  array[0][1] = arg2;
+  retval = write_pass_one(asdf, blt, array, 1);
+  fclose(asdf);
+  CU_ASSERT_EQUAL(retval, 0);
+
+  //correct case
+  FILE* asdf2= fopen("asdf2.txt", "w");
+  CU_ASSERT_PTR_NOT_NULL(asdf2);
+  char *array2[3][20];
+  char arg3[4] = "$8";
+  char arg4[4] = "$9";
+  char arg5[10] = "label";
+  array2[0][0] = arg3;
+  array2[0][1] = arg4;
+  array2[0][2] = arg5;
+
+  retval = write_pass_one(asdf2, blt, array2, 3); 
+  fclose(asdf2);
+  CU_ASSERT_EQUAL(retval, 2);
+}
+
 int main(int argc, char** argv) {
-    CU_pSuite pSuite1 = NULL, pSuite2 = NULL;
+    CU_pSuite pSuite1 = NULL, pSuite2 = NULL, pSuite3 = NULL;
 
     if (CUE_SUCCESS != CU_initialize_registry()) {
         return CU_get_error();
@@ -187,6 +271,19 @@ int main(int argc, char** argv) {
     if (!CU_add_test(pSuite2, "test_table_2", test_table_2)) {
         goto exit;
     }
+
+    /* Suite 3 */
+    pSuite3 = CU_add_suite("Testing li and blt expansion", NULL, NULL);
+    if (!pSuite3) {
+      goto exit;
+    }
+    if (!CU_add_test(pSuite3, "test_li_expansion", test_li_expansion)) {
+        goto exit;
+    }   
+    if (!CU_add_test(pSuite3, "test_blt_expansion", test_blt_expansion)) {
+        goto exit;
+    }
+
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
     CU_basic_run_tests();
