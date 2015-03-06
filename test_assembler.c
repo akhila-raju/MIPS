@@ -159,15 +159,14 @@ void test_table_2() {
 
 void test_li_expansion() {
     int retval;
-
     char li[]  = "li";
 
     //error case: wrong num of args
     FILE* asdf = fopen("asdf.txt", "w");
     CU_ASSERT_PTR_NOT_NULL(asdf);
-    char *badArray[1][20];
+    char *badArray[1];
     char badArg[4] = "$s0";
-    badArray[0][0] = badArg;
+    badArray[0] = badArg;
     retval = write_pass_one(asdf, li, badArray, 1);
     fclose(asdf);
     CU_ASSERT_EQUAL(retval, 0);
@@ -175,11 +174,12 @@ void test_li_expansion() {
     //correct case: addiu
     FILE* asdf1 = fopen("asdf1.txt", "w");
     CU_ASSERT_PTR_NOT_NULL(asdf1);
-    char *array[2][20];
+    //create an array of pointers to strings
+    char *array[2];
     char arg1[4] = "$t0";
     char arg2[6] = "65535";
-    array[0][0] = arg1;
-    array[0][1] = arg2;
+    array[0] = arg1;
+    array[1] = arg2;
     retval = write_pass_one(asdf1, li, array, 2);
     fclose(asdf1);
     CU_ASSERT_EQUAL(retval, 1);
@@ -187,11 +187,11 @@ void test_li_expansion() {
     //correct case: lui ori
     FILE* asdf2 = fopen("asdf2.txt", "w");
     CU_ASSERT_PTR_NOT_NULL(asdf2);
-    char *array2[2][30];
+    char *array2[2];
     char arg3[4] = "$t0";
-    char arg4[20] = "0x3BF20";
-    array2[0][0] = arg3;
-    array2[0][1] = arg4;
+    char arg4[8] = "0x3BF20";
+    array2[0] = arg3;
+    array2[1] = arg4;
     retval = write_pass_one(asdf2, li, array2, 2);
     fclose(asdf2);
     CU_ASSERT_EQUAL(retval, 2);
@@ -199,11 +199,11 @@ void test_li_expansion() {
     //correct case: deadbeef
     FILE* asdf3 = fopen("asdf3.txt", "w");
     CU_ASSERT_PTR_NOT_NULL(asdf3);
-    char *array3[2][30];
+    char *array3[2];
     char arg5[4] = "$t0";
-    char arg6[20] = "0xDEADBEEF";
-    array3[0][0] = arg5;
-    array3[0][1] = arg6;
+    char arg6[11] = "0xDEADBEEF";
+    array3[0] = arg5;
+    array3[1] = arg6;
     retval = write_pass_one(asdf3, li, array3, 2);
     fclose(asdf3);
     CU_ASSERT_EQUAL(retval, 2); 
@@ -216,11 +216,12 @@ void test_blt_expansion() {
   //incorrect case: not enough arguments
   FILE* asdf = fopen("asdf.txt", "w");
   CU_ASSERT_PTR_NOT_NULL(asdf);
-  char *array[3][20];
+  char *array[3];
   char arg1[4] = "$8";
   char arg2[4] = "$9";
-  array[0][0] = arg1;
-  array[0][1] = arg2;
+  array[0] = arg1;
+  array[1] = arg2;
+  array[2] = NULL;
   retval = write_pass_one(asdf, blt, array, 1);
   fclose(asdf);
   CU_ASSERT_EQUAL(retval, 0);
@@ -228,13 +229,13 @@ void test_blt_expansion() {
   //correct case
   FILE* asdf2= fopen("asdf2.txt", "w");
   CU_ASSERT_PTR_NOT_NULL(asdf2);
-  char *array2[3][20];
+  char *array2[3];
   char arg3[4] = "$8";
   char arg4[4] = "$9";
   char arg5[10] = "label";
-  array2[0][0] = arg3;
-  array2[0][1] = arg4;
-  array2[0][2] = arg5;
+  array2[0] = arg3;
+  array2[1] = arg4;
+  array2[2] = arg5;
 
   retval = write_pass_one(asdf2, blt, array2, 3); 
   fclose(asdf2);

@@ -115,7 +115,7 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
           strcpy(bneInst, "bne ");
           strcat(bneInst, "$at ");
           strcat(bneInst, "$0 ");
-          strcat(bneInst, args[3]);
+          strcat(bneInst, args[2]);
 
           fprintf(output, "%s\n", sltInst);
           fprintf(output, "%s\n", bneInst);
