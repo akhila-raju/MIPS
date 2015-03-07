@@ -120,8 +120,61 @@ static int add_if_label(uint32_t input_line, char* str, uint32_t byte_offset,
    it should return 0.
  */
 int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
-    /* YOUR CODE HERE */
-    return -1;
+    uint32_t lineCount = 0;
+    uint32_t byteOffset = 0;
+    int hasErrorOccured = 0;
+    
+    char buf[BUF_SIZE];
+
+    while (fgets(buf, sizeof(buf), input)) {
+      lineCount += 1;
+      skip_comment(buf);
+      //initial lineCount = 1, byteoffset = 0
+
+      char* name;
+      char* args[MAX_ARGS];
+      int num_args = 0;
+      int isLabel = 0; //1 if label is valid, 0 if invalid label
+
+      //tokenize
+      char *tok;
+      tok = strtok(buf, IGNORE_CHARS);
+      isLabel = is_valid_label(tok);
+      
+      if(isLable) {
+        char* lable;
+        label = tok;
+        tok = strtok(NULL, IGNORE_CHARS);
+        name = tok;
+        int addLabel = add_if_label(lineCount, label, byteOffset, symtbl); 
+        byteOffset = (lineCount * 4) - 4; //move me to the right place. won't always change
+      } else {
+        name = tok;
+      }
+      while (tok != NULL) {
+        tok = strtok(NULL, IGNORE_CHARS);
+        args[num_args] = tok;
+        num_args += 1;
+      }
+
+      if (addLabel == 0) {
+        //if string is not a label, treat it as an instruction
+        if (num_args > MAX_ARGS) {
+          raise_extra_arg_error(lineCount, args[MAX_ARGS + 1]);
+          hasErrorOccured = -1;
+        } else {
+          write_pass_one(output, name, args, num_args);
+        }
+      } else if (addLabel == -1) {
+        //if string is not a valid label or
+        //addition to symbol table fails
+        hasErrorOccured = -1;
+      } else if add_if_label(addLabel  == 1) {
+        //valid label and succeeds
+        write_pass_one(output, name, args, num_args);
+      }
+    }
+    return hasErrorOccured;
 }
 
 /* Reads an intermediate file and translates it into machine code. You may assume:
@@ -132,32 +185,51 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
     5. The symbol table has been filled out already
 
    If an error is reached, DO NOT EXIT the function. Keep translating the rest of
-   the document, and at the end, return -1. Return 0 if no errors were encountered. */
+   the document, and at the end, return -1. Return 0 if no errors were encountered.
+   
+   the output is the result of pass 2. the input is the intermediate file. */
 int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl) {
-    /* YOUR CODE HERE */
-
     // Since we pass this buffer to strtok(), the chars here will GET CLOBBERED.
+    uint32_t lineCount = 0;
     char buf[BUF_SIZE];
-    // Store input line number / byte offset below. When should each be incremented?
+    int hasErrorOccured = 0;
+    
+    // Store input line number / byte offset below. When should each be incremented? 
+    // input line number incremented for every while loop. byte offset incremented for every translate_inst 
+    // in a while loop
+    uint32_t addr; //addr = byte offset
 
     // First, read the next line into a buffer.
+    while(fgets(buf, sizeof(buf), input)) {
+        lineCount += 1;
 
-    // Next, use strtok() to scan for next character. If there's nothing,
-    // go to the next line.
+        char* tok; 
+        char* name;
+        char* args[MAX_ARGS];
+        int num_args = 0;
 
-    // Parse for instruction arguments. You should use strtok() to tokenize
-    // the rest of the line. Extra arguments should be filtered out in pass_one(),
-    // so you don't need to worry about that here.
-    char* args[MAX_ARGS];
-    int num_args = 0;
+        // Next, use strtok() to scan for next character. If there's nothing,
+        // go to the next line.
+        tok = strtok(buf, IGNORE_CHARS);
+        name = tok;
+        while (tok != NULL) {
+          // Parse for instruction arguments. You should use strtok() to tokenize  the rest of the line. 
+          tok = strtok(NULL, IGNORE_CHARS); //but wouldn't this run into the next line? no because your buffer has \0
+          args[num_args] = tok;
+          num_args += 1;
+        }
 
-    // Use translate_inst() to translate the instruction and write to output file.
-    // If an error occurs, the instruction will not be written and you should call
-    // raise_inst_error(). 
-
+      // Use translate_inst() to translate the instruction and write to output file.
+      addr = (4 * lineCount) - 4;
+      hasErrorOccured = translate_inst(output, name, args, num_args, addr, symtbl, reltbl); 
+      // If an error occurs, the instruction will not be written and you should call
+      // raise_inst_error(). 
+      if (hasErrorOccured == -1) {
+        raise_inst_error(lineCount, name, args, num_args);
+      }
+    }   
     // Repeat until no more characters are left, and the return the correct return val
-
-    return -1;
+    return hasErrorOccured;
 }
 
 /*******************************
