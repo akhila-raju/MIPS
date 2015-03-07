@@ -83,6 +83,12 @@ void test_translate_num() {
     CU_ASSERT_EQUAL(output, 72);
     CU_ASSERT_EQUAL(translate_num(&output, "72", 73, 150), -1);
     CU_ASSERT_EQUAL(translate_num(&output, "35x", -100, 100), -1);
+    CU_ASSERT_EQUAL(translate_num(&output, "-10", -15, 5), 0);
+    CU_ASSERT_EQUAL(output, -10);
+    CU_ASSERT_EQUAL(translate_num(&output, "-125", -125, -125), 0);
+    CU_ASSERT_EQUAL(output, -125);
+    CU_ASSERT_EQUAL(translate_num(&output, "-125", -123, -123), -1);
+
 }
 
 /****************************************

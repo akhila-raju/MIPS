@@ -42,9 +42,17 @@ int is_valid_label(const char* str) {
    Guard against cases of "12345abcde"
 */
 int is_valid_number(const char *a) {
-  for (int i = 0; a[i] != 0; i++) {
-    if (!isdigit(a[i])) {
-      return 0;
+  if (a[0] == '-') {
+    for (int i = 1; a[i] != 0; i++) {
+      if (!isdigit(a[i])) {
+        return 0;
+      }
+    }
+  } else {
+    for (int i = 0; a[i] != 0; i++) {
+      if (!isdigit(a[i])) {
+        return 0;
+      }
     }
   }
   return 1;
