@@ -158,33 +158,33 @@ void test_table_2() {
  * Test for step 3
  ****************************************/
 
-void test_li_expansion() {
-    else if (strcmp(name, "sltu") == 0)  return write_rtype (0x2b, output, args, num_args);
+// void test_li_expansion() {
+//     else if (strcmp(name, "sltu") == 0)  return write_rtype (0x2b, output, args, num_args);
     
-    else if (strcmp(name, "sll") == 0)   return write_shift (0x00, output, args, num_args);
+//     else if (strcmp(name, "sll") == 0)   return write_shift (0x00, output, args, num_args);
     
-    /* YOUR CODE HERE */
+//     /* YOUR CODE HERE */
     
-    else if (strcmp (name, "jr") == 0)   return write_jr (0x08, output, args, num_args);
+//     else if (strcmp (name, "jr") == 0)   return write_jr (0x08, output, args, num_args);
     
-    else if (strcmp (name, "addiu") == 0)return write_addiu (0x09, output, args, num_args);
+//     else if (strcmp (name, "addiu") == 0)return write_addiu (0x09, output, args, num_args);
     
-    else if (strcmp (name, "ori") == 0)  return write_ori (0x0d, output, args, num_args);
+//     else if (strcmp (name, "ori") == 0)  return write_ori (0x0d, output, args, num_args);
     
-    else if (strcmp (name, "lui") == 0)  return write_lui (0x0f, output, args, num_args);
+//     else if (strcmp (name, "lui") == 0)  return write_lui (0x0f, output, args, num_args);
     
-    else if (strcmp (name, "lb") == 0)   return write_itype (0x09, output, args, num_args);
-    else if (strcmp (name, "sb") == 0)   return write_mem (0x28, output, args, num_args);
+//     else if (strcmp (name, "lb") == 0)   return write_itype (0x09, output, args, num_args);
+//     else if (strcmp (name, "sb") == 0)   return write_mem (0x28, output, args, num_args);
 
-    // require symbol table
-    else if (strcmp (name, "beq") == 0)  return write_branch (0x04, output, args, num_args, addr, symtbl);
-    else if (strcmp (name, "jal") == 0)  return write_jump (0x03, output, args, num_args, addr, reltbl);
+//     // require symbol table
+//     else if (strcmp (name, "beq") == 0)  return write_branch (0x04, output, args, num_args, addr, symtbl);
+//     else if (strcmp (name, "jal") == 0)  return write_jump (0x03, output, args, num_args, addr, reltbl);
 
-}
+// }
 
-void test_blt_expansion() {
+// void test_blt_expansion() {
 
-}
+// }
 
 
 
