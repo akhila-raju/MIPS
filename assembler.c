@@ -120,7 +120,7 @@ static int add_if_label(uint32_t input_line, char* str, uint32_t byte_offset,
    it should return 0.
  */
 int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
-    uint32_t lineCount = 0;
+/*    uint32_t lineCount = 0;
     uint32_t byteOffset = 0;
     int hasErrorOccured = 0;
     
@@ -174,7 +174,8 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         write_pass_one(output, name, args, num_args);
       }
     }
-    return hasErrorOccured;
+    return hasErrorOccured; */
+    return -1;
 }
 
 /* Reads an intermediate file and translates it into machine code. You may assume:
