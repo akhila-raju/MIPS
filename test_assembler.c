@@ -287,7 +287,7 @@ void test_translate_inst() {
     char memreg2[3] = "11"; // array of char
     testmem[1] = memreg2; // set first element of bad array to $s0
     char memreg3[4] = "$a1"; // array of char
-    testmem[0] = memreg3; // set first element of bad array to $s0
+    testmem[2] = memreg3; // set first element of bad array to $s0
     const char *sb = "sb"; //create good name
     FILE* goodmem = fopen("goodmem.txt", "w");
     retval = translate_inst(goodmem, sb, testmem, 3, addr, symtbl, reltbl);
@@ -295,21 +295,22 @@ void test_translate_inst() {
     fclose(goodmem);
 
 
-
     // TEST WRITE_BRANCH
-    const char *beq = "beq"; //create good name     // <----------------------<< write branch?? how to represent function
-    char *testbeq[3]; // array of pointers to char arrays                       // look up symtbl / reltbl
-    char beqreg[4] = "$100"; // array of char
+    const char *beq = "beq"; //create good name 
+    char *testbeq[3]; // array of pointers to char arrays                       
+    char beqreg[4] = "$a0"; // array of char
     testbeq[0] = beqreg; // set first element of bad array to $s0
     char beqreg2[4] = "$a1";
     testbeq[1] = beqreg2;
+    char beqreg3[6] = "10000";
+    testbeq[2] = beqreg3;
 
     FILE* goodbeq = fopen("goodbeq.txt", "w");
     retval = translate_inst(goodbeq, beq, testbeq, 3, addr, symtbl, reltbl);
     CU_ASSERT_EQUAL(retval, 0);
     
-    retval = get_addr_for_symbol(reltbl, beq);
-    CU_ASSERT_EQUAL(retval, -1);                    // <----------------------<< get addr or storing in table not working
+    retval = get_addr_for_symbol(symtbl, beq);
+    CU_ASSERT_EQUAL(retval, 0);                    // <----------------------<< get addr or storing in table not working
     fclose(goodbeq);
 
 
@@ -324,7 +325,7 @@ void test_translate_inst() {
     CU_ASSERT_EQUAL(retval, 0);
 
     retval = get_addr_for_symbol(reltbl, jal);
-    CU_ASSERT_EQUAL(retval, -1);                    // <----------------------<< get addr or storing in table not working
+    CU_ASSERT_EQUAL(retval, 0);                    // <----------------------<< get addr or storing in table not working
     fclose(goodjal);
 
 

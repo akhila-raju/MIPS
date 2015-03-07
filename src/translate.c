@@ -228,21 +228,24 @@ int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args,
     // store into symtbl
     int rs = translate_reg(args[0]);
     int rt = translate_reg(args[1]);
+    long int offset; //args[1]
+    int err = translate_num(&offset, args[2], -32768, 32767);
 
-    // BRANCH OFFSET
-
-    if (rs == -1 || rt == -1) { 
+    if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
+    }
+
+    if (opcode == 0x04) {
+      add_to_table(symtbl, "beq", addr);
+    } else {
+      add_to_table(symtbl, "bne", addr);
     }
 
     opcode = opcode << 25;
     rs = rs << 20;
     rt = rt << 15;
 
-    char* name = *args; // name is a pointer to args. symbol name is stored in args[0]
-    add_to_table(symtbl, name, addr);
-
-    uint32_t instruction = rs + rt + opcode;  // WHAT DO I DO HEREEEEEEEE
+    uint32_t instruction = rs + rt + opcode;
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -258,7 +261,7 @@ int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
     int rt = translate_reg(args[2]);
 
-    if (rt == -1 || rs == -1 || err == -1) { 
+    if (rt == -1 || rs == -1) { 
       return -1;
     }
 
@@ -382,9 +385,17 @@ int write_jump(uint8_t opcode, FILE* output, char** args, size_t num_args,
     uint32_t addr, SymbolTable* reltbl) {
     // put relative address in relocation table. 
 
-    // store into reltbl
-    char* name = *args; // name is a pointer to args. symbol name is stored in args[0]
-    add_to_table(reltbl, name, addr);
+    if (opcode == 0x02) {
+      add_to_table(reltbl, "j", addr);
+    } else {
+      add_to_table(reltbl, "jal", addr);
+    }
+
+    opcode = opcode << 25;
+
+    uint32_t instruction = opcode;
+    write_inst_hex(output, instruction);
+
     return 0;
 }
 
