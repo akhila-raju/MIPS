@@ -18,6 +18,8 @@ int write_shift(uint8_t funct, FILE* output, char** args, size_t num_args);
 
 /* SOLUTION CODE BELOW */
 
+int write_itype(uint8_t opcode, FILE* output, char** args, size_t num_args);
+
 int write_jr(uint8_t funct, FILE* output, char** args, size_t num_args);
 
 int write_addiu(uint8_t opcode, FILE* output, char** args, size_t num_args);
@@ -29,7 +31,7 @@ int write_lui(uint8_t opcode, FILE* output, char** args, size_t num_args);
 int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args);
 
 int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args, 
-    uint32_t addr, SymbolTable* symtbl);
+    uint32_t addr, SymbolTable* symtbl); //pull addr from symbol table to calculate immediate
 
 int write_jump(uint8_t opcode, FILE* output, char** args, size_t num_args, 
     uint32_t addr, SymbolTable* reltbl);

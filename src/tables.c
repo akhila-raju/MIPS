@@ -63,22 +63,18 @@ void free_table(SymbolTable *table) {
     }
     table->len = 0;
     free(table->tbl);
-    free(table);
 }
 
 /* Adds a new symbol and its address to the SymbolTable pointed to by TABLE. 
    ADDR is given as the byte offset from the first instruction.
    The SymbolTable must be able to resize itself as more elements are added. 
-
    Note that NAME may point to a temporary array, so it is not safe to simply
    store the NAME pointer. You must store a copy of the given string.
-
    If ADDR is not word-aligned, you should call addr_alignment_incorrect() and
    return -1. 
    If the table's mode is SYMTBL_UNIQUE_NAME and NAME already exists 
    in the table, you should call name_already_exists() and return -1. If memory
    allocation fails, you should call allocation_failed(). 
-
    Otherwise, you should store the symbol name and address and return 0.
  */
 int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
@@ -142,4 +138,3 @@ void write_table(SymbolTable* table, FILE* output) {
         write_symbol(output, sym.addr, sym.name);       
     }
 }
-

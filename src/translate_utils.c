@@ -73,14 +73,12 @@ int is_hex(const char *a) {
 /* Translate the input string into a signed number. The number is then 
    checked to be within the correct range (note bounds are INCLUSIVE)
    ie. NUM is valid if LOWER_BOUND <= NUM <= UPPER_BOUND. 
-
    The input may be in either positive or negative, and be in either
    decimal or hexadecimal format. It is also possible that the input is not
    a valid number. Fortunately, the library function strtol() can take 
    care of all that.
    Please read the documentation for strtol() carefully. 
    Do not use strtoul() or any other variants. 
-
    You should store the result into the location that OUTPUT points to. The 
    function returns 0 if the conversion proceeded without errors, or -1 if an 
    error occurred.
@@ -119,7 +117,6 @@ int translate_num(long int* output, const char* str, long int lower_bound,
 
 /* Translates the register name to the corresponding register number. Please
    see the MIPS Green Sheet for information about register numbers.
-
    Returns the register number of STR or -1 if the register name is invalid.
  */
 int translate_reg(const char* str) {
