@@ -158,34 +158,207 @@ void test_table_2() {
  * Test for step 3
  ****************************************/
 
-// void test_li_expansion() {
-//     else if (strcmp(name, "sltu") == 0)  return write_rtype (0x2b, output, args, num_args);
-    
-//     else if (strcmp(name, "sll") == 0)   return write_shift (0x00, output, args, num_args);
-    
-//     /* YOUR CODE HERE */
-    
-//     else if (strcmp (name, "jr") == 0)   return write_jr (0x08, output, args, num_args);
-    
-//     else if (strcmp (name, "addiu") == 0)return write_addiu (0x09, output, args, num_args);
-    
-//     else if (strcmp (name, "ori") == 0)  return write_ori (0x0d, output, args, num_args);
-    
-//     else if (strcmp (name, "lui") == 0)  return write_lui (0x0f, output, args, num_args);
-    
-//     else if (strcmp (name, "lb") == 0)   return write_itype (0x09, output, args, num_args);
-//     else if (strcmp (name, "sb") == 0)   return write_mem (0x28, output, args, num_args);
+void test_translate_inst() {
+    int retval;
 
-//     // require symbol table
-//     else if (strcmp (name, "beq") == 0)  return write_branch (0x04, output, args, num_args, addr, symtbl);
-//     else if (strcmp (name, "jal") == 0)  return write_jump (0x03, output, args, num_args, addr, reltbl);
+    // create args
+    char *args[3]; // array of pointers to char arrays
+    char functReg3[4] = "$a1"; // array of char
+    args[0] = functReg3; // set first element of bad array to $s0
+    char functReg[4] = "$a1";
+    args[1] = functReg;
+    char functReg2[4] = "$a0";
+    args[2] = functReg2;
 
-// }
+    uint32_t addr = 0;
 
-// void test_blt_expansion() {
+    // create symtbl & reltbl
+    SymbolTable* symtbl = create_table(0);
+    SymbolTable* reltbl = create_table(0);
 
-// }
 
+    // TEST WRITE_RTYPE, valid args, return 0
+    FILE* testrtype = fopen("testrtype.txt", "w");
+    const char *rtype = "addu"; //create good name
+    retval = translate_inst(testrtype, rtype, args, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    fclose(testrtype);
+
+
+
+
+    // TEST WRITE_SHIFT
+    char *testshift[3]; // array of pointers to char arrays
+    char shiftReg3[4] = "$a1"; // array of char
+    testshift[0] = shiftReg3; // set first element of bad array to $s0
+    char shiftReg[4] = "$a1";
+    testshift[1] = shiftReg;
+    char shiftReg2[2] = "1";
+    testshift[2] = shiftReg2;
+    const char *shift = "sll"; //create good name
+
+    // test write_shift, valid args, return 0
+    FILE* goodshift = fopen("goodshift.txt", "w");
+    retval = translate_inst(goodshift, shift, testshift, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    fclose(goodshift);
+
+    // test write_shift, invalid shiftamt, return -1
+    char newshiftReg2[2] = "32";
+    testshift[2] = newshiftReg2;
+    FILE* badshift = fopen("badshift.txt", "w");
+    retval = translate_inst(badshift, shift, testshift, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, -1);
+    fclose(badshift);
+
+
+
+    // TEST WRITE_JR
+    char *testjr[1]; // array of pointers to char arrays
+    char jrReg[4] = "$a1"; // array of char
+    testjr[0] = jrReg; // set first element of bad array to $s0
+    const char *jr = "jr"; //create good name
+    FILE* goodjr = fopen("goodjr.txt", "w");
+    retval = translate_inst(goodjr, jr, testjr, 1, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    fclose(goodjr);
+
+
+
+    // TEST WRITE_ADDIU & WRITE_ITYPE & WRITE_ORI
+    char *testaddiu[3]; // array of pointers to char arrays
+    char addiuReg[4] = "$a1"; // array of char
+    testaddiu[0] = addiuReg; // set first element of bad array to $s0
+    char addiuReg2[4] = "$a1";
+    testaddiu[1] = addiuReg2;
+    char addiuReg3[6] = "10000";
+    testaddiu[2] = addiuReg3;
+
+    // addiu
+    const char *addiu = "addiu"; //create good name
+    FILE* goodaddiu = fopen("goodaddiu.txt", "w");
+    retval = translate_inst(goodaddiu, addiu, testaddiu, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    fclose(goodaddiu);
+
+    // itype
+    const char *lb = "lb"; //create good name
+    FILE* goodlb = fopen("goodlb.txt", "w");
+    retval = translate_inst(goodlb, lb, testaddiu, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    fclose(goodlb);
+
+    // ori
+    const char *ori = "ori"; //create good name
+    FILE* goodori = fopen("goodori.txt", "w");
+    retval = translate_inst(goodori, ori, testaddiu, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    fclose(goodori);
+
+    char addiuReg4[6] = "32768";
+    testaddiu[2] = addiuReg4;
+
+    //test bad itype (overflow)
+    const char *lbu = "lbu"; //create good name
+    FILE* goodlbu = fopen("goodlbu.txt", "w");
+    retval = translate_inst(goodlbu, lbu, testaddiu, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, -1);
+    fclose(goodlbu);
+
+
+    // TEST WRITE_LUI
+    char *testlui[2]; // array of pointers to char arrays
+    char luireg[4] = "$a1"; // array of char
+    testlui[0] = luireg; // set first element of bad array to $s0
+    char luireg2[4] = "-11"; // array of char                       // <----------------------<< negative number not working
+    testlui[1] = luireg2; // set first element of bad array to $s0
+    const char *lui = "lui"; //create good name
+    FILE* goodlui = fopen("goodlui.txt", "w");
+    retval = translate_inst(goodlui, lui, testlui, 2, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    fclose(goodlui);
+
+
+
+    // TEST WRITE_MEM
+    char *testmem[2]; // array of pointers to char arrays
+    char memreg[4] = "$a1"; // array of char
+    testmem[0] = memreg; // set first element of bad array to $s0
+    char memreg2[3] = "11"; // array of char
+    testmem[1] = memreg2; // set first element of bad array to $s0
+    char memreg3[4] = "$a1"; // array of char
+    testmem[0] = memreg3; // set first element of bad array to $s0
+    const char *sb = "sb"; //create good name
+    FILE* goodmem = fopen("goodmem.txt", "w");
+    retval = translate_inst(goodmem, sb, testmem, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    fclose(goodmem);
+
+
+
+    // TEST WRITE_BRANCH
+    const char *beq = "beq"; //create good name     // <----------------------<< write branch?? how to represent function
+    char *testbeq[3]; // array of pointers to char arrays                       // look up symtbl / reltbl
+    char beqreg[4] = "$100"; // array of char
+    testbeq[0] = beqreg; // set first element of bad array to $s0
+    char beqreg2[4] = "$a1";
+    testbeq[1] = beqreg2;
+
+    FILE* goodbeq = fopen("goodbeq.txt", "w");
+    retval = translate_inst(goodbeq, beq, testbeq, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+    
+    retval = get_addr_for_symbol(reltbl, beq);
+    CU_ASSERT_EQUAL(retval, -1);                    // <----------------------<< get addr or storing in table not working
+    fclose(goodbeq);
+
+
+    // TEST WRITE_JUMP
+    const char *jal = "jal"; //create good name
+    char *testjump[1]; // array of pointers to char arrays
+    char jumpreg[4] = "$ra"; // array of char
+    testjump[0] = jumpreg; // set first element of bad array to $s0
+
+    FILE* goodjal = fopen("goodjal.txt", "w");
+    retval = translate_inst(goodjal, jal, testjump, 1, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, 0);
+
+    retval = get_addr_for_symbol(reltbl, jal);
+    CU_ASSERT_EQUAL(retval, -1);                    // <----------------------<< get addr or storing in table not working
+    fclose(goodjal);
+
+
+
+    // TEST BAD REGISTER; should return -1
+    FILE* regs = fopen("regs.txt", "w");
+    char *testReg[3]; // array of pointers to char arrays
+    char badReg[4] = "$100"; // array of char
+    testReg[0] = badReg; // set first element of bad array to $s0
+    char goodReg[4] = "$a1";
+    testReg[1] = goodReg;
+    char goodReg2[4] = "$a0";
+    testReg[2] = goodReg2;
+    retval = translate_inst(regs, shift, testshift, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, -1);
+    fclose(regs);
+
+    // TEST BAD NAME, return -1
+    FILE* bad = fopen("bad.txt", "w");
+    const char *badargname = "auuu"; //create bad name
+    retval = translate_inst(bad, badargname, args, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, -1);
+    fclose(bad);
+
+    // TEST BAD ARG ARRAY, return -1
+    FILE* badargsfile = fopen("badargsfile.txt", "w");
+    char *badArray[1]; // array of pointers to char arrays
+    char badArg[4] = "$s0"; // array of char
+    badArray[0] = badArg; // set first element of bad array to $s0
+    retval = translate_inst(badargsfile, rtype, badArray, 3, addr, symtbl, reltbl);
+    CU_ASSERT_EQUAL(retval, -1);
+    fclose(badargsfile);
+
+}
 
 
 /****************************************
@@ -278,7 +451,7 @@ void test_blt_expansion() {
 }
 
 int main(int argc, char** argv) {
-    CU_pSuite pSuite1 = NULL, pSuite2 = NULL, pSuite3 = NULL;
+    CU_pSuite pSuite1 = NULL, pSuite2 = NULL, pSuite3 = NULL, pSuite4 = NULL;
 
     if (CUE_SUCCESS != CU_initialize_registry()) {
         return CU_get_error();
@@ -320,6 +493,14 @@ int main(int argc, char** argv) {
         goto exit;
     }
 
+    /* Suite 4 */
+    pSuite4 = CU_add_suite("Testing step 3", NULL, NULL);
+    if (!pSuite4) {
+      goto exit;
+    }
+    if (!CU_add_test(pSuite4, "test_translate_inst", test_translate_inst)) {
+        goto exit;
+    }   
 
     CU_basic_set_mode(CU_BRM_VERBOSE);
     CU_basic_run_tests();
