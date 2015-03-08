@@ -241,9 +241,9 @@ int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args,
       add_to_table(symtbl, "bne", addr);
     }
 
-    long int op = opcode << 25;
-    rs = rs << 20;
-    rt = rt << 15;
+    long int op = opcode << 26;
+    rs = rs << 21;
+    rt = rt << 16;
 
     uint32_t instruction = rs + rt + op;
     write_inst_hex(output, instruction);
@@ -265,9 +265,9 @@ int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args) {
       return -1;
     }
 
-    long int op = opcode << 25;
-    rs = rs << 20;
-    rt = rt << 15;
+    long int op = opcode << 26;
+    rs = rs << 21;
+    rt = rt << 16;
 
     uint32_t instruction = rt + rs + op + imm;
     write_inst_hex(output, instruction);
@@ -288,8 +288,8 @@ int write_lui(uint8_t opcode, FILE* output, char** args, size_t num_args) {
       return -1;
     }
 
-    long int op = opcode << 25;
-    rt = rt << 15;
+    long int op = opcode << 26;
+    rt = rt << 16;
 
     uint32_t instruction = rt + op + imm;
     write_inst_hex(output, instruction);
@@ -305,7 +305,7 @@ int write_jr(uint8_t funct, FILE* output, char** args, size_t num_args) {
       return -1;
     }
 
-    rs = rs << 20;
+    rs = rs << 21;
 
     uint32_t instruction = rs + funct;
     write_inst_hex(output, instruction);
@@ -327,9 +327,9 @@ int write_ori(uint8_t opcode, FILE* output, char** args, size_t num_args) {
       return -1;
     }
 
-    long int op = opcode << 25;
-    rs = rs << 20;
-    rt = rt << 15;
+    long int op = opcode << 26;
+    rs = rs << 21;
+    rt = rt << 16;
 
     uint32_t instruction = op + rs + rt + imm;
     write_inst_hex(output, instruction);
@@ -340,18 +340,18 @@ int write_itype(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     // Perhaps perform some error checking?
 
     long int rt = translate_reg(args[0]);
-    long int rs = translate_reg(args[1]);
+    long int rs = translate_reg(args[2]);
     long int imm;
-    long int err = translate_num(&imm, args[2], -32768, 32767);
+    long int err = translate_num(&imm, args[1], -32768, 32767);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
     }
 
-    long int op = opcode << 25;
-    rs = rs << 20;
-    rt = rt << 15;
+    long int op = opcode << 26;
+    rs = rs << 21;
+    rt = rt << 16;
 
     uint32_t instruction = rs + rt + op + imm;
     write_inst_hex(output, instruction);
@@ -365,18 +365,19 @@ int write_addiu(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     long int rt = translate_reg(args[0]);
     long int rs = translate_reg(args[1]);
     long int imm;
-    long int err = translate_num(&imm, args[2], -30000, 30000);
+    long int err = translate_num(&imm, args[2], -32768, 32767);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
     }
 
-    long int op = opcode << 25;
-    rs = rs << 20;
-    rt = rt << 15;
+    long int op = opcode << 26;
+    rs = rs << 21;
+    rt = rt << 16;
 
-    uint32_t instruction = rs + rt + op + imm;
+    uint32_t instruction = rs | rt | op | (imm & 0xFFFF);
+    instruction = instruction >> 2;
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -391,7 +392,7 @@ int write_jump(uint8_t opcode, FILE* output, char** args, size_t num_args,
       add_to_table(reltbl, "jal", addr);
     }
 
-    long int op = opcode << 25;
+    long int op = opcode << 26;
 
     uint32_t instruction = op;
     write_inst_hex(output, instruction);
@@ -422,9 +423,9 @@ int write_rtype(uint8_t funct, FILE* output, char** args, size_t num_args) {
       return -1;
     }
 
-    rs = rs << 20;
-    rt = rt << 15;
-    rd = rd << 10;
+    rs = rs << 21;
+    rt = rt << 16;
+    rd = rd << 11;
 
     uint32_t instruction = rs + rt + rd + funct;
     write_inst_hex(output, instruction);
@@ -452,9 +453,9 @@ int write_shift(uint8_t funct, FILE* output, char** args, size_t num_args) {
       return -1;
     }
 
-    rt = rt << 15;
-    rd = rd << 10;
-    shamt = shamt << 5;
+    rt = rt << 16;
+    rd = rd << 11;
+    shamt = shamt << 6;
 
     uint32_t instruction = rd + rt + shamt + funct;
     write_inst_hex(output, instruction);
