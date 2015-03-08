@@ -208,7 +208,7 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     
     else if (strcmp (name, "lui") == 0)  return write_lui (0x0f, output, args, num_args);
     
-    else if (strcmp (name, "lb") == 0)   return write_itype (0x09, output, args, num_args);
+    else if (strcmp (name, "lb") == 0)   return write_itype (0x20, output, args, num_args);
     else if (strcmp (name, "lbu") == 0)  return write_itype (0x24, output, args, num_args);
     else if (strcmp (name, "lw") == 0)   return write_itype (0x23, output, args, num_args);
     else if (strcmp (name, "sb") == 0)   return write_mem (0x28, output, args, num_args);
@@ -251,15 +251,14 @@ int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args,
 }
 
 int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args) {
-  
+
     // for storing
     // sb = sw: rs + signextimm = rt
 
-    long int rs = translate_reg(args[0]);
-    long int imm; //args[1]
+    long int rt = translate_reg(args[0]);
+    long int rs = translate_reg(args[2]);
+    long int imm;
     long int err = translate_num(&imm, args[1], -32768, 32767);
-    // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
-    long int rt = translate_reg(args[2]);
 
     if (rt == -1 || rs == -1 || err == -1) { 
       return -1;
@@ -269,7 +268,7 @@ int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     rs = rs << 21;
     rt = rt << 16;
 
-    uint32_t instruction = rt + rs + op + imm;
+    uint32_t instruction = op + rs + rt + imm;
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -358,29 +357,27 @@ int write_itype(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     return 0;
 }
 
+
 int write_addiu(uint8_t opcode, FILE* output, char** args, size_t num_args) {
-
-    // addiu. rt = rs + signextimm
-
-    long int rt = translate_reg(args[0]);
-    long int rs = translate_reg(args[1]);
+    int rt = translate_reg(args[0]);
+    int rs = translate_reg(args[1]);
     long int imm;
-    long int err = translate_num(&imm, args[2], -32768, 32767);
-    // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
-
+    int err = translate_num(&imm, args[2], -32768, 32767);
+    
+    //error check
     if (rs == -1 || rt == -1 || err == -1) { 
-      return -1;
-    }
+      return -1; 
+    }   
+    
+    int op = opcode << 26; 
+    rs = rs << 21; 
+    rt = rt << 16; 
 
-    long int op = opcode << 26;
-    rs = rs << 21;
-    rt = rt << 16;
-
-    uint32_t instruction = rs | rt | op | (imm & 0xFFFF);
-    instruction = instruction >> 2;
+    uint32_t instruction = op | rs | rt | (imm & 0xFFFF);
     write_inst_hex(output, instruction);
     return 0;
 }
+
 
 int write_jump(uint8_t opcode, FILE* output, char** args, size_t num_args, 
     uint32_t addr, SymbolTable* reltbl) {
