@@ -208,7 +208,7 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     
     else if (strcmp (name, "lui") == 0)  return write_lui (0x0f, output, args, num_args);
     
-    else if (strcmp (name, "lb") == 0)   return write_itype (0x20, output, args, num_args);
+    else if (strcmp (name, "lb") == 0)   return write_mem (0x20, output, args, num_args);
     else if (strcmp (name, "lbu") == 0)  return write_itype (0x24, output, args, num_args);
     else if (strcmp (name, "lw") == 0)   return write_itype (0x23, output, args, num_args);
     else if (strcmp (name, "sb") == 0)   return write_mem (0x28, output, args, num_args);
@@ -268,7 +268,7 @@ int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     rs = rs << 21;
     rt = rt << 16;
 
-    uint32_t instruction = op + rs + rt + imm;
+    uint32_t instruction = op + rs + rt + (imm & 0xFFFF);
     write_inst_hex(output, instruction);
     return 0;
 }
