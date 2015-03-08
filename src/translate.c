@@ -198,6 +198,8 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     
     else if (strcmp(name, "sll") == 0)   return write_shift (0x00, output, args, num_args);
     
+    /* YOUR CODE HERE */
+    
     else if (strcmp (name, "jr") == 0)   return write_jr (0x08, output, args, num_args);
     
     else if (strcmp (name, "addiu") == 0)return write_addiu (0x09, output, args, num_args);
@@ -206,7 +208,7 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     
     else if (strcmp (name, "lui") == 0)  return write_lui (0x0f, output, args, num_args);
     
-    else if (strcmp (name, "lb") == 0)   return write_itype (0x20, output, args, num_args);
+    else if (strcmp (name, "lb") == 0)   return write_itype (0x09, output, args, num_args);
     else if (strcmp (name, "lbu") == 0)  return write_itype (0x24, output, args, num_args);
     else if (strcmp (name, "lw") == 0)   return write_itype (0x23, output, args, num_args);
     else if (strcmp (name, "sb") == 0)   return write_mem (0x28, output, args, num_args);
@@ -224,10 +226,10 @@ int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args,
     uint32_t addr, SymbolTable* symtbl) {
 
     // store into symtbl
-    int rs = translate_reg(args[0]);
-    int rt = translate_reg(args[1]);
+    long int rs = translate_reg(args[0]);
+    long int rt = translate_reg(args[1]);
     long int offset; //args[1]
-    int err = translate_num(&offset, args[2], -32768, 32767);
+    long int err = translate_num(&offset, args[2], -32768, 32767);
 
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
@@ -239,11 +241,11 @@ int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args,
       add_to_table(symtbl, "bne", addr);
     }
 
-    opcode = opcode << 25;
+    long int op = opcode << 25;
     rs = rs << 20;
     rt = rt << 15;
 
-    uint32_t instruction = rs + rt + opcode;
+    uint32_t instruction = rs + rt + op;
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -253,21 +255,21 @@ int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     // for storing
     // sb = sw: rs + signextimm = rt
 
-    int rs = translate_reg(args[0]);
+    long int rs = translate_reg(args[0]);
     long int imm; //args[1]
-    int err = translate_num(&imm, args[1], -32768, 32767);
+    long int err = translate_num(&imm, args[1], -32768, 32767);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
-    int rt = translate_reg(args[2]);
+    long int rt = translate_reg(args[2]);
 
     if (rt == -1 || rs == -1 || err == -1) { 
       return -1;
     }
 
-    opcode = opcode << 25;
+    long int op = opcode << 25;
     rs = rs << 20;
     rt = rt << 15;
 
-    uint32_t instruction = rt + rs + opcode + imm;
+    uint32_t instruction = rt + rs + op + imm;
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -277,19 +279,19 @@ int write_lui(uint8_t opcode, FILE* output, char** args, size_t num_args) {
 
     // rt = imm | b
 
-    int rt = translate_reg(args[0]);
+    long int rt = translate_reg(args[0]);
     long int imm;
-    int err = translate_num(&imm, args[1], -32768, 32767);
+    long int err = translate_num(&imm, args[1], -32768, 32767);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rt == -1 || err == -1) { 
       return -1;
     }
 
-    opcode = opcode << 25;
+    long int op = opcode << 25;
     rt = rt << 15;
 
-    uint32_t instruction = rt + opcode + imm;
+    uint32_t instruction = rt + op + imm;
     write_inst_hex(output, instruction);
     return 0;  
 }
@@ -297,7 +299,7 @@ int write_lui(uint8_t opcode, FILE* output, char** args, size_t num_args) {
 int write_jr(uint8_t funct, FILE* output, char** args, size_t num_args) {
 
     // jr. PC = rs 
-    int rs = translate_reg(args[0]);
+    long int rs = translate_reg(args[0]);
 
     if (rs == -1) { 
       return -1;
@@ -315,21 +317,21 @@ int write_ori(uint8_t opcode, FILE* output, char** args, size_t num_args) {
 
     // rt = rs | imm
 
-    int rt = translate_reg(args[0]);
-    int rs = translate_reg(args[1]);
+    long int rt = translate_reg(args[0]);
+    long int rs = translate_reg(args[1]);
     long int imm;
-    int err = translate_num(&imm, args[2], -32768, 32767);
+    long int err = translate_num(&imm, args[2], -32768, 32767);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
     }
 
-    opcode = opcode << 25;
+    long int op = opcode << 25;
     rs = rs << 20;
     rt = rt << 15;
 
-    uint32_t instruction = opcode + rs + rt + imm;
+    uint32_t instruction = op + rs + rt + imm;
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -337,21 +339,21 @@ int write_ori(uint8_t opcode, FILE* output, char** args, size_t num_args) {
 int write_itype(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     // Perhaps perform some error checking?
 
-    int rt = translate_reg(args[0]);
-    int rs = translate_reg(args[2]);
+    long int rt = translate_reg(args[0]);
+    long int rs = translate_reg(args[1]);
     long int imm;
-    int err = translate_num(&imm, args[1], -32768, 32767);
+    long int err = translate_num(&imm, args[2], -32768, 32767);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
     }
 
-    opcode = opcode << 25;
+    long int op = opcode << 25;
     rs = rs << 20;
     rt = rt << 15;
 
-    uint32_t instruction = rs + rt + opcode + imm;
+    uint32_t instruction = rs + rt + op + imm;
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -360,21 +362,21 @@ int write_addiu(uint8_t opcode, FILE* output, char** args, size_t num_args) {
 
     // addiu. rt = rs + signextimm
 
-    int rt = translate_reg(args[0]);
-    int rs = translate_reg(args[1]);
+    long int rt = translate_reg(args[0]);
+    long int rs = translate_reg(args[1]);
     long int imm;
-    int err = translate_num(&imm, args[2], -32768, 32767);
+    long int err = translate_num(&imm, args[2], -30000, 30000);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
     }
 
-    opcode = opcode << 25;
+    long int op = opcode << 25;
     rs = rs << 20;
     rt = rt << 15;
 
-    uint32_t instruction = rs + rt + opcode + imm;
+    uint32_t instruction = rs + rt + op + imm;
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -389,9 +391,9 @@ int write_jump(uint8_t opcode, FILE* output, char** args, size_t num_args,
       add_to_table(reltbl, "jal", addr);
     }
 
-    opcode = opcode << 25;
+    long int op = opcode << 25;
 
-    uint32_t instruction = opcode;
+    uint32_t instruction = op;
     write_inst_hex(output, instruction);
 
     return 0;
@@ -412,9 +414,9 @@ int write_rtype(uint8_t funct, FILE* output, char** args, size_t num_args) {
     //slt = rd = rs < rt
     //sltu = rd = rs < rt
 
-    int rd = translate_reg(args[0]);
-    int rs = translate_reg(args[1]);
-    int rt = translate_reg(args[2]);
+    long int rd = translate_reg(args[0]);
+    long int rs = translate_reg(args[1]);
+    long int rt = translate_reg(args[2]);
 
     if (rd == -1 || rs == -1 || rt == -1) { 
       return -1;
@@ -441,21 +443,18 @@ int write_shift(uint8_t funct, FILE* output, char** args, size_t num_args) {
 
   // sll: rd = rt << shiftamt
 
-    int rd = translate_reg(args[0]);
-    int rt = translate_reg(args[1]);
+    long int rd = translate_reg(args[0]);
+    long int rt = translate_reg(args[1]);
     long int shamt;
-    int err = translate_num(&shamt, args[2], 0, 31); // 2^5 = 32
+    long int err = translate_num(&shamt, args[2], 0, 31); // 2^5 = 32
 
     if (rd == -1 || rt == -1 || err == -1) {
       return -1;
     }
 
     rt = rt << 15;
-    fprintf("%s", rt);
     rd = rd << 10;
-    fprintf("%s", rd);
     shamt = shamt << 5;
-    fprintf("%s", shamt);
 
     uint32_t instruction = rd + rt + shamt + funct;
     write_inst_hex(output, instruction);
