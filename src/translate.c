@@ -261,7 +261,7 @@ int write_mem(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
     int rt = translate_reg(args[2]);
 
-    if (rt == -1 || rs == -1) { 
+    if (rt == -1 || rs == -1 || err == -1) { 
       return -1;
     }
 

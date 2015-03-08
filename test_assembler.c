@@ -339,13 +339,13 @@ void test_translate_inst() {
     // TEST BAD REGISTER; should return -1
     FILE* regs = fopen("regs.txt", "w");
     char *testReg[3]; // array of pointers to char arrays
-    char badReg[4] = "$100"; // array of char
+    char badReg[5] = "$100"; // array of char
     testReg[0] = badReg; // set first element of bad array to $s0
     char goodReg[4] = "$a1";
     testReg[1] = goodReg;
     char goodReg2[4] = "$a0";
     testReg[2] = goodReg2;
-    retval = translate_inst(regs, shift, testshift, 3, addr, symtbl, reltbl);
+    retval = translate_inst(regs, shift, testReg, 3, addr, symtbl, reltbl);
     CU_ASSERT_EQUAL(retval, -1);
     fclose(regs);
 

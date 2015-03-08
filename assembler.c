@@ -94,7 +94,6 @@ static int add_if_label(uint32_t input_line, char* str, uint32_t byte_offset,
 /*******************************
  * Implement the Following
  *******************************/
-
 /* First pass of the assembler. You should implement pass_two() first.
 
    This function should read each line, strip all comments, scan for labels,
@@ -120,7 +119,7 @@ static int add_if_label(uint32_t input_line, char* str, uint32_t byte_offset,
    it should return 0.
  */
 int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
-/*    uint32_t lineCount = 0;
+    uint32_t lineCount = 0;
     uint32_t byteOffset = 0;
     int hasErrorOccured = 0;
     
@@ -129,53 +128,59 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
     while (fgets(buf, sizeof(buf), input)) {
       lineCount += 1;
       skip_comment(buf);
-      //initial lineCount = 1, byteoffset = 0
-
+      
       char* name;
       char* args[MAX_ARGS];
       int num_args = 0;
-      int isLabel = 0; //1 if label is valid, 0 if invalid label
 
       //tokenize
       char *tok;
       tok = strtok(buf, IGNORE_CHARS);
-      isLabel = is_valid_label(tok);
+      if (tok == NULL) break;
+      name = tok;
       
-      if(isLable) {
-        char* lable;
-        label = tok;
-        tok = strtok(NULL, IGNORE_CHARS);
-        name = tok;
-        int addLabel = add_if_label(lineCount, label, byteOffset, symtbl); 
-        byteOffset = (lineCount * 4) - 4; //move me to the right place. won't always change
-      } else {
-        name = tok;
-      }
-      while (tok != NULL) {
-        tok = strtok(NULL, IGNORE_CHARS);
-        args[num_args] = tok;
-        num_args += 1;
-      }
+      int isLabel = add_if_label(lineCount, name, byteOffset, symtbl);
+      if (isLabel == 0) {
+        //not a label
+        byteOffset += 4; //incr for the next loop
+        while (tok != NULL) {
+          tok = strtok(NULL, IGNORE_CHARS);
+          args[num_args] = tok;
+          num_args += 1;
+        }
+        if (num_args > MAX_ARGS) {
+          raise_extra_arg_error(lineCount, args[MAX_ARGS]);
+          hasErrorOccured = -1;
+        } else {
+          write_pass_one(output, name, args, num_args);
+        }
+      } else if (isLabel == -1) {
+        //not a valid label
+        hasErrorOccured = -1;
+      } else if (isLabel  == 1) {
+        //valid label and succeeds
 
-      if (addLabel == 0) {
-        //if string is not a label, treat it as an instruction
+        //reassign name and tok
+        tok = strtok(NULL, IGNORE_CHARS);
+        name = tok;
+        
+        //tokenize as normal
+        byteOffset += 4; //for the next loop.
+        while (tok != NULL) {
+          tok = strtok(NULL, IGNORE_CHARS);
+          args[num_args] = tok;
+          num_args += 1;
+        }  
         if (num_args > MAX_ARGS) {
           raise_extra_arg_error(lineCount, args[MAX_ARGS + 1]);
           hasErrorOccured = -1;
         } else {
           write_pass_one(output, name, args, num_args);
         }
-      } else if (addLabel == -1) {
-        //if string is not a valid label or
-        //addition to symbol table fails
-        hasErrorOccured = -1;
-      } else if add_if_label(addLabel  == 1) {
-        //valid label and succeeds
-        write_pass_one(output, name, args, num_args);
       }
     }
-    return hasErrorOccured; */
-    return -1;
+
+    return hasErrorOccured;
 }
 
 /* Reads an intermediate file and translates it into machine code. You may assume:
@@ -212,10 +217,11 @@ int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl
         // Next, use strtok() to scan for next character. If there's nothing,
         // go to the next line.
         tok = strtok(buf, IGNORE_CHARS);
+        if (tok == NULL) break;
         name = tok;
         while (tok != NULL) {
           // Parse for instruction arguments. You should use strtok() to tokenize  the rest of the line. 
-          tok = strtok(NULL, IGNORE_CHARS); //but wouldn't this run into the next line? no because your buffer has \0
+          tok = strtok(NULL, IGNORE_CHARS);
           args[num_args] = tok;
           num_args += 1;
         }
