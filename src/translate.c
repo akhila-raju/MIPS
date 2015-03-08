@@ -357,24 +357,26 @@ int write_itype(uint8_t opcode, FILE* output, char** args, size_t num_args) {
 }
 
 int write_addiu(uint8_t opcode, FILE* output, char** args, size_t num_args) {
-
-    // addiu. rt = rs + signextimm
-
     int rt = translate_reg(args[0]);
     int rs = translate_reg(args[1]);
     long int imm;
-    int err = translate_num(&imm, args[2], -30000, 30000);
-    // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
-
+    int err = translate_num(&imm, args[2], -32768, 32767);
+    
+    //error check
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
     }
+    
+    int op = opcode << 26; 
+    rs = rs << 21;
+    rt = rt << 16;
+   
+    printf("***the opcode is %d\n", op); 
+    printf("***the rs is %d\n", rs);
+    printf("***the rt is %d\n", rt); 
+    printf("***the imm is %lu\n", imm);
 
-    opcode = opcode << 25;
-    rs = rs << 20;
-    rt = rt << 15;
-
-    uint32_t instruction = rs + rt + opcode + imm;
+    uint32_t instruction = opcode | rs | rt | imm;
     write_inst_hex(output, instruction);
     return 0;
 }
