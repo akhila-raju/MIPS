@@ -276,7 +276,7 @@ void test_translate_inst() {
     char *testlui[2]; // array of pointers to char arrays
     char luireg[4] = "$a1"; // array of char
     testlui[0] = luireg; // set first element of bad array to $s0
-    char luireg2[4] = "-11"; // array of char                       // <----------------------<< negative number not working
+    char luireg2[4] = "-11"; // array of char                      
     testlui[1] = luireg2; // set first element of bad array to $s0
     const char *lui = "lui"; //create good name
     FILE* goodlui = fopen("goodlui.txt", "w");
@@ -316,7 +316,7 @@ void test_translate_inst() {
     CU_ASSERT_EQUAL(retval, 0);
     
     retval = get_addr_for_symbol(symtbl, beq);
-    CU_ASSERT_EQUAL(retval, 0);                    // <----------------------<< get addr or storing in table not working
+    CU_ASSERT_EQUAL(retval, 0);              
     fclose(goodbeq);
 
 
@@ -331,7 +331,7 @@ void test_translate_inst() {
     CU_ASSERT_EQUAL(retval, 0);
 
     retval = get_addr_for_symbol(reltbl, jal);
-    CU_ASSERT_EQUAL(retval, 0);                    // <----------------------<< get addr or storing in table not working
+    CU_ASSERT_EQUAL(retval, 0);               
     fclose(goodjal);
 
 

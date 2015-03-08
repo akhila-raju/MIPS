@@ -363,7 +363,7 @@ int write_addiu(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     int rt = translate_reg(args[0]);
     int rs = translate_reg(args[1]);
     long int imm;
-    int err = translate_num(&imm, args[2], -30000, 30000);
+    int err = translate_num(&imm, args[2], -32768, 32767);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rs == -1 || rt == -1 || err == -1) { 
@@ -451,8 +451,11 @@ int write_shift(uint8_t funct, FILE* output, char** args, size_t num_args) {
     }
 
     rt = rt << 15;
+    fprintf("%s", rt);
     rd = rd << 10;
+    fprintf("%s", rd);
     shamt = shamt << 5;
+    fprintf("%s", shamt);
 
     uint32_t instruction = rd + rt + shamt + funct;
     write_inst_hex(output, instruction);
