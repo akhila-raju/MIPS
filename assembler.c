@@ -225,9 +225,19 @@ int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl
           args[num_args] = tok;
           num_args += 1;
         }
+        num_args = num_args - 1; //account for strtok behav
 
       // Use translate_inst() to translate the instruction and write to output file.
       addr = (4 * lineCount) - 4;
+      printf("\n");
+      printf("the inputs to translate_inst are:\n");
+      printf("name %s\n", name);
+      printf("args[0]: %s\n", args[0]);
+      printf("args[1]; %s\n", args[1]);
+      printf("args[2]: %s\n", args[2]);
+      printf("number of args is %d\n", num_args);
+      printf("addr is %d\n", addr);
+      printf("\n");
       hasErrorOccured = translate_inst(output, name, args, num_args, addr, symtbl, reltbl); 
       // If an error occurs, the instruction will not be written and you should call
       // raise_inst_error(). 

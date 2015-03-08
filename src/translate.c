@@ -198,8 +198,6 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     
     else if (strcmp(name, "sll") == 0)   return write_shift (0x00, output, args, num_args);
     
-    /* YOUR CODE HERE */
-    
     else if (strcmp (name, "jr") == 0)   return write_jr (0x08, output, args, num_args);
     
     else if (strcmp (name, "addiu") == 0)return write_addiu (0x09, output, args, num_args);
@@ -208,7 +206,7 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     
     else if (strcmp (name, "lui") == 0)  return write_lui (0x0f, output, args, num_args);
     
-    else if (strcmp (name, "lb") == 0)   return write_itype (0x09, output, args, num_args);
+    else if (strcmp (name, "lb") == 0)   return write_itype (0x20, output, args, num_args);
     else if (strcmp (name, "lbu") == 0)  return write_itype (0x24, output, args, num_args);
     else if (strcmp (name, "lw") == 0)   return write_itype (0x23, output, args, num_args);
     else if (strcmp (name, "sb") == 0)   return write_mem (0x28, output, args, num_args);
@@ -340,9 +338,9 @@ int write_itype(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     // Perhaps perform some error checking?
 
     int rt = translate_reg(args[0]);
-    int rs = translate_reg(args[1]);
+    int rs = translate_reg(args[2]);
     long int imm;
-    int err = translate_num(&imm, args[2], -32768, 32767);
+    int err = translate_num(&imm, args[1], -32768, 32767);
     // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rs == -1 || rt == -1 || err == -1) { 
