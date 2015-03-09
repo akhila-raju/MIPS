@@ -248,11 +248,11 @@ void test_translate_inst() {
     fclose(goodaddiu);
 
     // itype
-    const char *lb = "lb"; //create good name
-    FILE* goodlb = fopen("goodlb.txt", "w");
-    retval = translate_inst(goodlb, lb, testaddiu, 3, addr, symtbl, reltbl);
-    CU_ASSERT_EQUAL(retval, 0);
-    fclose(goodlb);
+    // const char *lb = "lb"; //create good name
+    // FILE* goodlb = fopen("goodlb.txt", "w");
+    // retval = translate_inst(goodlb, lb, testaddiu, 3, addr, symtbl, reltbl);
+    // CU_ASSERT_EQUAL(retval, 0);
+    // fclose(goodlb);
 
     // ori
     const char *ori = "ori"; //create good name

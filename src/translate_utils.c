@@ -43,13 +43,13 @@ int is_valid_label(const char* str) {
 */
 int is_valid_number(const char *a) {
   if (a[0] == '-') {
-    for (int i = 1; a[i] != 0; i++) {
+    for (int i = 1; a[i] != '\0'; i++) {
       if (!isdigit(a[i])) {
         return 0;
       }
     }
   } else {
-    for (int i = 0; a[i] != 0; i++) {
+    for (int i = 0; a[i] != '\0'; i++) {
       if (!isdigit(a[i])) {
         return 0;
       }
@@ -91,18 +91,26 @@ int translate_num(long int* output, const char* str, long int lower_bound,
         return -1;
     }
 
+
     //check if hex
     //if not hex, check if it's a valid number
+
+    char * endptr;
+
     if (is_hex(str)) {
-      result = strtol(str, NULL, 16); 
+      result = strtol(str, &endptr, 16); 
     } else if (is_valid_number(str)) {
-      result = strtol(str, NULL, 10);
+      // printf("*** str is a valid number? %d\n ", is_valid_number(str));
+      result = strtol(str, &endptr, 10);
     } else {
       return -1;
     }
-    
+   
+    // printf("*** Result is and should not be 0 %d\n ", result);
+    // printf("*** the value of string is %d\n", *str);
+
     //check to see if there's a valid conversion
-    if (result == 0) {
+    if (endptr == '\0') {
       return -1;
     }
        
