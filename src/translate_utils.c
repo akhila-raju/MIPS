@@ -85,7 +85,7 @@ int is_hex(const char *a) {
  */
 int translate_num(long int* output, const char* str, long int lower_bound, 
     long int upper_bound) {
-    long int result;     
+//    long int result;     
 
     if (!str || !output) {
         return -1;
@@ -94,7 +94,7 @@ int translate_num(long int* output, const char* str, long int lower_bound,
     //check if hex
     //if not hex, check if it's a valid number
     char * endptr;
-
+/*
     if (is_hex(str)) {
       result = strtol(str, &endptr, 16); 
     } else if (is_valid_number(str)) {
@@ -103,18 +103,23 @@ int translate_num(long int* output, const char* str, long int lower_bound,
     } else {
       return -1;
     }
-   
+ */  
+    *output = strtol(str, &endptr, 0);
     // printf("*** Result is and should not be 0 %d\n ", result);
     // printf("*** the value of string is %d\n", *str);
 
     //check to see if there's a valid conversion
-    if (endptr == '\0') {
+    /*
+    if (endptr != '\0') {
       return -1;
     }
-       
+   */ 
+    
+    if (strcmp(endptr, "\0") != 0) return -1;   
+    
     //check to make sure within bounds
-    if (lower_bound <= result && result <= upper_bound) {
-      *output = result;
+    if (lower_bound <= *output && *output <= upper_bound) {
+      //*output = result;
       return 0;
     } else {
       return -1;

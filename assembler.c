@@ -140,7 +140,15 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
       if (tok == NULL) continue;
       name = tok;
       
-      int isLabel = add_if_label(lineCount, name, byteOffset, symtbl);
+      int isLabel; 
+/*
+      if(strlen(name) == strlen(buf)) { //if buf on it's own line
+          isLabel = add_if_label(lineCount, name, byteOffset + 4, symtbl);
+      } else {
+          isLabel = add_if_label(lineCount, name, byteOffset, symtbl);
+      } */
+      isLabel = add_if_label(lineCount, name, byteOffset, symtbl);
+
       if (isLabel == 0) {
         //not a label
         byteOffset += 4; //incr for the next loop
@@ -177,7 +185,7 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         //adjustment
         num_args = num_args - 1;
         if (num_args > MAX_ARGS) {
-          raise_extra_arg_error(lineCount, args[MAX_ARGS + 1]);
+          raise_extra_arg_error(lineCount, args[MAX_ARGS]);
           hasErrorOccured = -1;
         } else {
           write_pass_one(output, name, args, num_args);
