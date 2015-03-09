@@ -60,8 +60,11 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
         //ex: li $8, 0x3BF20
         int instructions_written = 0; 
         long int imm;
-
+         
         int i = translate_num(&imm, args[1], -2147483648, 4294967295);
+        
+        printf("imm is %lu\n", imm);
+
         if (num_args == 2) {
           if (i == -1) {
             //immediate is too large 
@@ -75,7 +78,6 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
             strcat(instructions, args[0]);
             strcat(instructions, " $0 ");
             strcat(instructions, charImm);
-            strcat(instructions, "\n");
             instructions_written += 1;
             fprintf(output, "%s\n", instructions);
             //printf("\n\n%s\n", instructions); //delete me (for testing)
@@ -88,7 +90,7 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
             char oriImm[30];
 
             strcpy(luiInst, "lui ");
-            strcat(luiInst, args[0]);
+            strcat(luiInst, "$at");
             strcat(luiInst, " ");
             //get upper 16 bits
             imm = imm >> 16;
@@ -99,7 +101,7 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
             strcpy(oriInst, "ori ");
             strcat(oriInst, args[0]);
             strcat(oriInst, " ");
-            strcat(oriInst, args[0]);
+            strcat(oriInst, "$at");
             strcat(oriInst, " ");
 
             //get the lower 16 bits
@@ -198,8 +200,6 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
     
     else if (strcmp(name, "sll") == 0)   return write_shift (0x00, output, args, num_args);
     
-    /* YOUR CODE HERE */
-    
     else if (strcmp (name, "jr") == 0)   return write_jr (0x08, output, args, num_args);
     
     else if (strcmp (name, "addiu") == 0)return write_addiu (0x09, output, args, num_args);
@@ -228,24 +228,22 @@ int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args,
     // store into symtbl
     long int rs = translate_reg(args[0]);
     long int rt = translate_reg(args[1]);
-    long int offset; //args[1]
-    long int err = translate_num(&offset, args[2], -32768, 32767);
+    long int imm;
+    int offset =  (get_addr_for_symbol(symtbl, args[2]) - (addr + 4)) / 4; //label_address - (branch_instruction_address + 4)
+    char buf[17];
+    sprintf(buf, "%d", offset);
+       
+    int err = translate_num(&imm, buf, -32768, 32767);
 
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
-    }
-
-    if (opcode == 0x04) {
-      add_to_table(symtbl, "beq", addr);
-    } else {
-      add_to_table(symtbl, "bne", addr);
     }
 
     long int op = opcode << 26;
     rs = rs << 21;
     rt = rt << 16;
 
-    uint32_t instruction = rs + rt + op;
+    uint32_t instruction = rs + rt + op + (imm & 0xffff);
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -381,11 +379,7 @@ int write_jump(uint8_t opcode, FILE* output, char** args, size_t num_args,
     uint32_t addr, SymbolTable* reltbl) {
     // put relative address in relocation table. 
 
-    if (opcode == 0x02) {
-      add_to_table(reltbl, "j", addr);
-    } else {
-      add_to_table(reltbl, "jal", addr);
-    }
+    add_to_table(reltbl, args[0], addr);
 
     long int op = opcode << 26;
 

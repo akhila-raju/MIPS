@@ -91,10 +91,8 @@ int translate_num(long int* output, const char* str, long int lower_bound,
         return -1;
     }
 
-
     //check if hex
     //if not hex, check if it's a valid number
-
     char * endptr;
 
     if (is_hex(str)) {

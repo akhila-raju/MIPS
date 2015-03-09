@@ -69,7 +69,8 @@ void test_translate_reg() {
 
 void test_translate_num() {
     long int output;
-
+    CU_ASSERT_EQUAL(translate_num(&output, "-6000", -2147483648, 4294967295), 0);
+    CU_ASSERT_EQUAL(output, -6000);
     CU_ASSERT_EQUAL(translate_num(&output, "35", -1000, 1000), 0);
     CU_ASSERT_EQUAL(output, 35);
     CU_ASSERT_EQUAL(translate_num(&output, "145634236", 0, 9000000000), 0);
@@ -302,7 +303,7 @@ void test_translate_inst() {
 
 
     // TEST WRITE_BRANCH
-    const char *beq = "beq"; //create good name 
+    /*const char *beq = "beq"; //create good name 
     char *testbeq[3]; // array of pointers to char arrays                       
     char beqreg[4] = "$a0"; // array of char
     testbeq[0] = beqreg; // set first element of bad array to $s0
@@ -313,15 +314,15 @@ void test_translate_inst() {
 
     FILE* goodbeq = fopen("goodbeq.txt", "w");
     retval = translate_inst(goodbeq, beq, testbeq, 3, addr, symtbl, reltbl);
-    CU_ASSERT_EQUAL(retval, 0);
+    CU_ASSERT_EQUAL(retval, 0); 
     
     retval = get_addr_for_symbol(symtbl, beq);
     CU_ASSERT_EQUAL(retval, 0);              
-    fclose(goodbeq);
+    fclose(goodbeq); */
 
 
-    // TEST WRITE_JUMP
-    const char *jal = "jal"; //create good name
+    // TEST WRITE_JUMP 
+    /*const char *jal = "jal"; //create good name
     char *testjump[1]; // array of pointers to char arrays
     char jumpreg[4] = "$ra"; // array of char
     testjump[0] = jumpreg; // set first element of bad array to $s0
@@ -332,7 +333,7 @@ void test_translate_inst() {
 
     retval = get_addr_for_symbol(reltbl, jal);
     CU_ASSERT_EQUAL(retval, 0);               
-    fclose(goodjal);
+    fclose(goodjal);*/
 
 
 

@@ -127,8 +127,9 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
 
     while (fgets(buf, sizeof(buf), input)) {
       lineCount += 1;
+
       skip_comment(buf);
-      
+
       char* name;
       char* args[MAX_ARGS];
       int num_args = 0;
@@ -136,7 +137,7 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
       //tokenize
       char *tok;
       tok = strtok(buf, IGNORE_CHARS);
-      if (tok == NULL) break;
+      if (tok == NULL) continue;
       name = tok;
       
       int isLabel = add_if_label(lineCount, name, byteOffset, symtbl);
@@ -148,6 +149,7 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
           args[num_args] = tok;
           num_args += 1;
         }
+        num_args = num_args - 1; 
         if (num_args > MAX_ARGS) {
           raise_extra_arg_error(lineCount, args[MAX_ARGS]);
           hasErrorOccured = -1;
@@ -162,6 +164,7 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
 
         //reassign name and tok
         tok = strtok(NULL, IGNORE_CHARS);
+        if (tok == NULL) continue;
         name = tok;
         
         //tokenize as normal
@@ -171,12 +174,14 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
           args[num_args] = tok;
           num_args += 1;
         }  
+        //adjustment
+        num_args = num_args - 1;
         if (num_args > MAX_ARGS) {
           raise_extra_arg_error(lineCount, args[MAX_ARGS + 1]);
           hasErrorOccured = -1;
         } else {
           write_pass_one(output, name, args, num_args);
-        }
+        }  
       }
     }
 
@@ -217,7 +222,7 @@ int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl
         // Next, use strtok() to scan for next character. If there's nothing,
         // go to the next line.
         tok = strtok(buf, IGNORE_CHARS);
-        if (tok == NULL) break;
+        if (tok == NULL) continue;
         name = tok;
         while (tok != NULL) {
           // Parse for instruction arguments. You should use strtok() to tokenize  the rest of the line. 
@@ -229,7 +234,7 @@ int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl
 
       // Use translate_inst() to translate the instruction and write to output file.
       addr = (4 * lineCount) - 4;
-      printf("\n");
+/*      printf("\n");
       printf("the inputs to translate_inst are:\n");
       printf("name %s\n", name);
       printf("args[0]: %s\n", args[0]);
@@ -237,7 +242,7 @@ int pass_two(FILE *input, FILE* output, SymbolTable* symtbl, SymbolTable* reltbl
       printf("args[2]: %s\n", args[2]);
       printf("number of args is %d\n", num_args);
       printf("addr is %d\n", addr);
-      printf("\n");
+      printf("\n"); */
       hasErrorOccured = translate_inst(output, name, args, num_args, addr, symtbl, reltbl); 
       // If an error occurs, the instruction will not be written and you should call
       // raise_inst_error(). 
