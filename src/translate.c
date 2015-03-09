@@ -370,14 +370,9 @@ int write_addiu(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     int op = opcode << 26; 
     rs = rs << 21;
     rt = rt << 16;
-   
-    printf("***the opcode is %d\n", op); 
-    printf("***the rs is %d\n", rs);
-    printf("***the rt is %d\n", rt); 
-    printf("***the imm is %lu\n", imm);
 
-    uint32_t instruction = opcode | rs | rt | imm;
-    write_inst_hex(output, instruction);
+    uint32_t instruction = op | rs | rt | (imm & 0xFFFF);
+    fprintf(output, "%x\n", instruction);
     return 0;
 }
 
