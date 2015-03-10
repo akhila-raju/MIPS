@@ -91,6 +91,16 @@ static int add_if_label(uint32_t input_line, char* str, uint32_t byte_offset,
     }
 }
 
+/* helper for if we should expand 2 lines. */
+int how_many_expansions(const char* name, char** args, int num_args) {
+  long int imm;
+  translate_num(&imm, args[1], -2147483648, 4294967295);
+  
+  if ((strcmp(name, "blt") == 0) && num_args == 3) return 2;
+  else if ((num_args == 2) && (strcmp(name, "li") == 0) && (-32768 > imm || imm > 65535)) return 2;
+  else return 1;
+}
+
 /*******************************
  * Implement the Following
  *******************************/
@@ -141,17 +151,9 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
       name = tok;
       
       int isLabel; 
-/*
-      if(strlen(name) == strlen(buf)) { //if buf on it's own line
-          isLabel = add_if_label(lineCount, name, byteOffset + 4, symtbl);
-      } else {
-          isLabel = add_if_label(lineCount, name, byteOffset, symtbl);
-      } */
       isLabel = add_if_label(lineCount, name, byteOffset, symtbl);
-
       if (isLabel == 0) {
         //not a label
-        byteOffset += 4; //incr for the next loop
         while (tok != NULL) {
           tok = strtok(NULL, IGNORE_CHARS);
           args[num_args] = tok;
@@ -162,10 +164,16 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
           raise_extra_arg_error(lineCount, args[MAX_ARGS]);
           hasErrorOccured = -1;
         } else {
+          //if 2 expansions, byteOffset += 8
+          if(how_many_expansions(name, args, num_args) == 2) {
+            byteOffset += 8; //incr for the next loop if only 1 expansion
+          } else {
+            byteOffset += 4;
+          }
           write_pass_one(output, name, args, num_args);
         }
       } else if (isLabel == -1) {
-        //not a valid label
+        //not a valid label: do nothing
         hasErrorOccured = -1;
       } else if (isLabel  == 1) {
         //valid label and succeeds
@@ -176,7 +184,6 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         name = tok;
         
         //tokenize as normal
-        byteOffset += 4; //for the next loop.
         while (tok != NULL) {
           tok = strtok(NULL, IGNORE_CHARS);
           args[num_args] = tok;
@@ -188,11 +195,15 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
           raise_extra_arg_error(lineCount, args[MAX_ARGS]);
           hasErrorOccured = -1;
         } else {
+          if(how_many_expansions(name, args, num_args) == 2) {
+            byteOffset += 8;
+          } else {
+            byteOffset += 4;
+          }
           write_pass_one(output, name, args, num_args);
         }  
       }
     }
-
     return hasErrorOccured;
 }
 

@@ -52,7 +52,6 @@
 //   details). If there is an error, do NOT write anything to the intermediate file, and 
 // return 0 to indicate that 0 lines have been written.
 
-
 //name = instruction, args = array of args; num_args = number of items in args
 //pseudoinstructions, you must make sure that ARGS contains the correct number
 unsigned write_pass_one(FILE* output, const char* name, char** args, int num_args) {
@@ -60,7 +59,6 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
         //ex: li $8, 0x3BF20
         int instructions_written = 0; 
         long int imm;
-        
         int i = translate_num(&imm, args[1], -2147483648, 4294967295);
         if (num_args == 2) {
           if (i == -1) {
@@ -69,7 +67,7 @@ unsigned write_pass_one(FILE* output, const char* name, char** args, int num_arg
           } else if (-32768 <= imm && imm <= 65535) {
             //addiu case
             char charImm[20];
-            snprintf(charImm, 16, "%lu", imm);
+            snprintf(charImm, 16, "%ld", imm);
             char instructions[50]; //addiu $t3 $0 5
             strcpy(instructions, "addiu ");
             strcat(instructions, args[0]);

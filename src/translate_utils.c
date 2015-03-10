@@ -113,8 +113,7 @@ int translate_num(long int* output, const char* str, long int lower_bound,
     if (endptr != '\0') {
       return -1;
     }
-   */ 
-    
+   */
     if (strcmp(endptr, "\0") != 0) return -1;   
     
     //check to make sure within bounds
