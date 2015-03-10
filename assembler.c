@@ -137,11 +137,10 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
 
     while (fgets(buf, sizeof(buf), input)) {
       lineCount += 1;
-
       skip_comment(buf);
 
       char* name;
-      char* args[MAX_ARGS];
+      char* args[50];
       int num_args = 0;
 
       //tokenize
@@ -161,7 +160,8 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         }
         num_args = num_args - 1; 
         if (num_args > MAX_ARGS) {
-          raise_extra_arg_error(lineCount, args[MAX_ARGS]);
+          const char *extraArg = args[MAX_ARGS];
+          raise_extra_arg_error(lineCount, extraArg);
           hasErrorOccured = -1;
         } else {
           //if 2 expansions, byteOffset += 8
@@ -192,7 +192,8 @@ int pass_one(FILE* input, FILE* output, SymbolTable* symtbl) {
         //adjustment
         num_args = num_args - 1;
         if (num_args > MAX_ARGS) {
-          raise_extra_arg_error(lineCount, args[MAX_ARGS]);
+          const char *extraArg = args[MAX_ARGS];
+          raise_extra_arg_error(lineCount, extraArg);
           hasErrorOccured = -1;
         } else {
           if(how_many_expansions(name, args, num_args) == 2) {

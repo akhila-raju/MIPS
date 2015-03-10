@@ -104,9 +104,12 @@ int add_to_table(SymbolTable* table, const char* name, uint32_t addr) {
         }
     }
 
-    char* namecopy = (char*) malloc(sizeof(name));
-    if (namecopy == NULL) allocation_failed();
-    strcpy(namecopy, name);
+    char* namecopy = (char*) malloc((strlen(name) * sizeof(char)) + 1);
+    if (namecopy == NULL) { 
+      allocation_failed();
+    } else {
+      strcpy(namecopy, name);
+    }
      
     // add symbol to array 
     table->tbl[table->len].name = namecopy; 
