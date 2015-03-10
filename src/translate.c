@@ -218,7 +218,6 @@ int translate_inst(FILE* output, const char* name, char** args, size_t num_args,
 
 int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args, 
     uint32_t addr, SymbolTable* symtbl) {
-    
     if (args[0] == '\0') return -1;
 
     // store into symtbl
@@ -241,7 +240,7 @@ int write_branch(uint8_t opcode, FILE* output, char** args, size_t num_args,
     rs = rs << 21;
     rt = rt << 16;
 
-    uint32_t instruction = rs + rt + op + (imm & 0xffff);
+    uint32_t instruction = rs | rt | op | (imm & 0xffff);
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -286,7 +285,7 @@ int write_lui(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     long int op = opcode << 26;
     rt = rt << 16;
 
-    uint32_t instruction = rt + op + imm;
+    uint32_t instruction = rt + op + (imm & 0xffff);
     write_inst_hex(output, instruction);
     return 0;  
 }
@@ -302,7 +301,7 @@ int write_jr(uint8_t funct, FILE* output, char** args, size_t num_args) {
 
     rs = rs << 21;
 
-    uint32_t instruction = rs + funct;
+    uint32_t instruction = rs + (funct & 0b111111);
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -316,7 +315,6 @@ int write_ori(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     long int rs = translate_reg(args[1]);
     long int imm;
     long int err = translate_num(&imm, args[2], -32768, 65536);
-    // lower bound = 2^(n-1). upper bound = 2^(n-1) - 1
 
     if (rs == -1 || rt == -1 || err == -1) { 
       return -1;
@@ -326,7 +324,7 @@ int write_ori(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     rs = rs << 21;
     rt = rt << 16;
 
-    uint32_t instruction = op + rs + rt + imm;
+    uint32_t instruction = op + rs + rt + (imm & 0xffff);
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -348,7 +346,7 @@ int write_itype(uint8_t opcode, FILE* output, char** args, size_t num_args) {
     rs = rs << 21;
     rt = rt << 16;
 
-    uint32_t instruction = rs + rt + op + imm;
+    uint32_t instruction = rs + rt + op + (imm & 0xffff);
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -419,7 +417,7 @@ int write_rtype(uint8_t funct, FILE* output, char** args, size_t num_args) {
     rt = rt << 16;
     rd = rd << 11;
 
-    uint32_t instruction = rs + rt + rd + funct;
+    uint32_t instruction = rs + rt + rd + (funct & 0b111111);
     write_inst_hex(output, instruction);
     return 0;
 }
@@ -450,7 +448,7 @@ int write_shift(uint8_t funct, FILE* output, char** args, size_t num_args) {
     rd = rd << 11;
     shamt = shamt << 6;
 
-    uint32_t instruction = rd + rt + shamt + funct;
+    uint32_t instruction = rd + rt + shamt + (funct & 0b111111);
     write_inst_hex(output, instruction);
     return 0;
 }
